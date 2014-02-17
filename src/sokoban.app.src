@@ -1,0 +1,12 @@
+{application, sokoban,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { sokoban_app, []}},
+  {env, []}
+ ]}.
