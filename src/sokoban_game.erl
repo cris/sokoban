@@ -7,8 +7,8 @@ new(Name) ->
 map(simple) ->
   [
     "#####",   % # -> wall
+    "# * #",   % ~ -> hole
     "#   #",   % *, + -> player, player on the hole
-    "# * #",   % ~, @ -> hole, player on the hole
     "#   #",   % o, @ -> box, box on the hole
     "#####"
   ].
