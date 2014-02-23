@@ -4,11 +4,10 @@
 %% coords: starts from 1x1
 
 player(up, Map) ->
-  PlayerP = position(player, Map),
-  case go(up, PlayerP) of
+  Player = position(player, Map),
+  case go(up, Player, Map) of
     fail -> Map;
-    PlayerP2={_,_} ->
-      moveto(PlayerP, PlayerP2, Map)
+    Map2 when is_list(Map2) -> Map2
   end.
 
 
@@ -20,6 +19,12 @@ box()    -> [$o, $@].
 wall()   -> $#.
 hole()   -> [$~, $+, $@].
 empty()  -> $\ .
+
+go(up, {X,Y}, Map) ->
+  if
+    Y-1 > 0 -> {X, Y-1};
+    true    -> fail
+  end.
 
 moveto(Player, NewPos, Map) ->
   Map2 = remove_from(player, Player, Map),
@@ -36,11 +41,6 @@ position(player, Map) ->
     Symbols = player(),
     sokoban_matrix:find_object(Symbols, Map).
 
-go(up, {X,Y}) ->
-  if
-    Y-1 > 0 -> {X, Y-1};
-    true    -> fail
-  end.
 
 player(Map) ->
   Sym = player(),

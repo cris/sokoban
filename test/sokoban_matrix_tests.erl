@@ -31,7 +31,8 @@ fixture(list) ->
 
 find_object_test() ->
     Map = fixture(map),
-    ?assertMatch({5,3}, ?M:find_object($*, Map)).
+    ?assertMatch({$*,5,3}, ?M:find_object($*, Map)),
+    ?assertMatch({$@,6,4}, ?M:find_object([$o,$@], Map)).
 
 find_i_via_index_test() ->
     List = fixture(list),

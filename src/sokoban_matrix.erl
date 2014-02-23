@@ -9,25 +9,11 @@ get(Map, {X,Y}) ->
   Row = lists:nth(Y, Map),
   lists:nth(X, Row).
 
-find_object(Symbol, Map) ->
-  F = fun(L) -> string:chr(L, Symbol) end,
-  Pozs = lists:map(F, Map),
-  find_iv_by(fun(X) -> X > 0 end, Pozs).
-
-
-find_iv_by(Pred, L) when is_function(Pred,1), is_list(L) ->
-  F = fun(X, {Ax, Ay}) ->
-      Nx = case Pred(X) of
-        true  -> X;
-        false -> Ax
-      end,
-      if
-        Ax > 0 -> {Nx, Ay};
-        true   -> {Nx, Ay+1}
-      end
-  end,
-  lists:foldl(F, {0,0}, L).
-
+find_object(Symbol, Map) when not is_list(Symbol)->
+    find_object([Symbol], Map);
+find_object(Symbols, Map) when is_list(Symbols) ->
+    F = fun(V,_,_) -> lists:member(V, Symbols) end,
+    find_ij(F, Map).
 
 map_i(F, L) when is_function(F,2), is_list(L) ->
     map_i(F, L, 1, []).
