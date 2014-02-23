@@ -28,28 +28,11 @@ find_iv_by(Pred, L) when is_function(Pred,1), is_list(L) ->
   end,
   lists:foldl(F, {0,0}, L).
 
-set_nth(N, F, L) when is_integer(N), is_list(L) ->
-    List2 = set_nth(N, F, L, []),
-    lists:reverse(List2).
-
-set_nth(N, F, [], Acc) ->
-    Acc;
-set_nth(1, F, [H|T], Acc) ->
-    Value = if
-        is_function(F) -> F(H);
-        true -> F
-    end,
-    set_nth(0, F, T, [Value | Acc]);
-set_nth(0, F, [H|T], Acc) ->
-    set_nth(0, F, T, [H | Acc]);
-set_nth(N, F, [H|T], Acc) when N > 1 ->
-    set_nth(N-1, F, T, [H | Acc]).
-
 
 map_i(F, L) when is_function(F,2), is_list(L) ->
     map_i(F, L, 1, []).
 
-map_i(F, [], I, Acc) ->
+map_i(_F, [], _I, Acc) ->
     lists:reverse(Acc);
 map_i(F, [H|T], I, Acc) ->
     map_i(F, T, I+1, [F(H,I) | Acc]).
@@ -57,3 +40,27 @@ map_i(F, [H|T], I, Acc) ->
 map_ij(F, L) when is_function(F,3), is_list(L) ->
     Fy = fun(Lx, Y) -> map_i(fun(V, X) -> F(V,X,Y) end, Lx) end,
     map_i(Fy, L).
+
+
+find_i(F, L) when is_function(F,2), is_list(L) ->
+    find_i(F, L, 1).
+
+find_i(_F, [], _I) ->
+    none;
+find_i(F, [H|T], I) ->
+    case F(H, I) of
+        true  -> {H, I};
+        false -> find_i(F, T, I+1)
+    end.
+
+find_ij(F, L) when is_function(F,3), is_list(L) ->
+    find_ij(F, L, 1).
+
+find_ij(_F, [], _J) ->
+    none;
+find_ij(F, [R|T], J) ->
+    Fx = fun(V,I) -> F(V,I,J) end,
+    case find_i(Fx,R) of
+        {V,I}  -> {V,I,J};
+        none -> find_ij(F, T, J+1)
+    end.
