@@ -7,10 +7,10 @@ new(Name) ->
 map(simple) ->
   [
     "#####",   % # -> wall
-    "# * #",   % ~ -> hole
+    "#   #",   % ~ -> hole
+    "# * #",   %' '-> empty
     "#   #",   % *, + -> player, player on the hole
-    "#   #",   % o, @ -> box, box on the hole
-    "#####"
+    "#####"    % o, @ -> box, box on the hole
   ].
 
 action(up, {state, Map}) ->
