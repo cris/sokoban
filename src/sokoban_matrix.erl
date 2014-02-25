@@ -5,15 +5,15 @@ set(Char, {X,Y}, Map) when is_integer(Char) ->
     Row = lists:nth(Y, Map),
     lists:nth(X, Row).
 
-get(Map, {X,Y}) ->
-  Row = lists:nth(Y, Map),
-  lists:nth(X, Row).
-
+find_object({X,Y}, Map) ->
+    F = fun(_,I,J) -> I =:= X andalso J =:= Y end,
+    find_ij(F, Map);
 find_object(Symbol, Map) when not is_list(Symbol)->
     find_object([Symbol], Map);
 find_object(Symbols, Map) when is_list(Symbols) ->
     F = fun(V,_,_) -> lists:member(V, Symbols) end,
     find_ij(F, Map).
+
 
 map_i(F, L) when is_function(F,2), is_list(L) ->
     map_i(F, L, 1, []).
