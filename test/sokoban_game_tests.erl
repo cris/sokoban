@@ -5,7 +5,7 @@
 
 new_test() ->
   State = sokoban_game:new(simple),
-  ?assertMatch({state, [[_|_],[_|_],[_|_],[_|_],[_|_],[_|_]]}, State).
+  ?assertMatch({state, [[_|_],[_|_],[_|_],[_|_],[_|_]]}, State).
 
 action_up_test() ->
   State = sokoban_game:new(simple),
@@ -17,4 +17,13 @@ action_up_test() ->
     "#   #",
     "#####"
   ],
-  ?assertMatch({state, ExpectedMap}, State2).
+  ?assertMatch({state, ExpectedMap}, State2),
+  State3 = sokoban_game:action(up, State),
+  ExpectedMap = [
+    "#####",
+    "# * #",
+    "#   #",
+    "#   #",
+    "#####"
+  ],
+  ?assertMatch({state, ExpectedMap}, State3).

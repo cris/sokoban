@@ -5,12 +5,9 @@
 
 player(up, Map) ->
     Cell1 = cell(player, Map),
-    Pos2 = position(up, Cell1),
-    Cell2 = cell(Pos2, Map),
-    Pos3 = position(up, Pos2),
-    Cell3 = cell(Pos3, Map),
+    Cell2 = cell(up, Cell1, Map),
+    Cell3 = cell(up, Cell2, Map),
     _Map2 = transform_c1_c2_c3([Cell1, Cell2, Cell3], Map).
-
 
 %% private part
 
@@ -43,14 +40,14 @@ chrcell({Item,X,Y}) ->
 
 % Player position is 1, next cell is 2, and next cell is 3
 % Depending on what is on cell2 and cell3 we can know how
-% to transform the whole stuff
+% to transform all 3 cells
 %
 % Cell1(Item1={Player1,Base},X1,Y1) -> Cell2(?,X2,Y2) -> Cell3(?,X3,Y3)
 
 transform_c1_c2_c3(Cells, Map) ->
     Items = lists:map(fun item/1, Cells),
     NewItems = transformation(Items),
-    NewCells = lists:zipwith(fun newcell/2, NewItems, Cells),
+    NewCells = lists:zipwith(fun newcell/2, NewItems, lists:sublist(Cells, length(NewItems))),
     ChrCells = lists:map(fun chrcell/1, NewCells),
     lists:foldl(fun sokoban_matrix:set/2, Map, ChrCells).
 
@@ -72,10 +69,10 @@ speculate(empty, _)         -> [{player,empty}];
 speculate(hole, _)          -> [{player,hole}];
 % box can't move to wall
 speculate({box,_}, wall)    -> [];
-% box can move on any base
-speculate({box,B2}, B3)     -> [{player,B2}, {box,B3}];
 % two boxes can't move
-speculate({box,_}, {box,_}) -> [].
+speculate({box,_}, {box,_}) -> [];
+% box can move on any base
+speculate({box,B2}, B3) when is_atom(B3) -> [{player,B2}, {box,B3}].
 
 % {player, empty} | {player, hole}
 % {box, empty} | {box, hole}
@@ -83,7 +80,9 @@ speculate({box,_}, {box,_}) -> [].
 % wall
 
 position(Direction, {_C,X,Y}) when is_atom(Direction) ->
-    position(Direction, {X,Y}).
+    position(Direction, {X,Y});
+position(up, {X,Y}) ->
+    {X, Y-1}.
 
 newcell(NewItem, {_,X,Y}) ->
     {NewItem,X,Y}.
@@ -95,6 +94,10 @@ cell(player, Map) ->
 cell(XY={_,_}, Map) ->
     MaybeCxy = sokoban_matrix:find_object(XY, Map),
     cell(MaybeCxy).
+
+cell(Direction, Cell, Map) ->
+    Pos = position(Direction, Cell),
+    cell(Pos, Map).
 
 cell({C,X,Y}) ->
     {chr2item(C), X, Y};
