@@ -5,12 +5,11 @@
 
 player(up, Map) ->
     Cell1 = cell(player, Map),
-    Pos1 = position(Cell1),
-    Pos2 = position(up, Player),
-    Pos3 = position(up, Pos2)
+    Pos2 = position(up, Cell1),
     Cell2 = cell(Pos2, Map),
+    Pos3 = position(up, Pos2),
     Cell3 = cell(Pos3, Map),
-    _Map2 = transform_c1_c2_c3(Cell1, Cell2, Cell3, Map).
+    _Map2 = transform_c1_c2_c3([Cell1, Cell2, Cell3], Map).
 
 
 %% private part
@@ -22,13 +21,25 @@ wall()   -> $#.
 hole()   -> [$~, $+, $@].
 empty()  -> $\ .
 
-chr2cell($*)  -> {player, empty};
-chr2cell($+)  -> {player, hole};
-chr2cell($o)  -> {box, empty};
-chr2cell($@)  -> {box, hole};
-chr2cell($#)  -> wall;
-chr2cell($~)  -> hole;
-chr2cell($\ ) -> empty.
+chr2item($*)  -> {player, empty};
+chr2item($+)  -> {player, hole};
+chr2item($o)  -> {box, empty};
+chr2item($@)  -> {box, hole};
+chr2item($#)  -> wall;
+chr2item($~)  -> hole;
+chr2item($\ ) -> empty.
+
+item2chr({player, empty}) -> $*;
+item2chr({player, hole})  -> $+;
+item2chr({box, empty})    -> $o;
+item2chr({box, hole})     -> $@;
+item2chr(wall)            -> $#;
+item2chr(hole)            -> $~;
+item2chr(empty)           -> $\ .
+
+chrcell({Item,X,Y}) ->
+    Chr = item2chr(Item),
+    {Chr,X,Y}.
 
 % Player position is 1, next cell is 2, and next cell is 3
 % Depending on what is on cell2 and cell3 we can know how
@@ -40,7 +51,8 @@ transform_c1_c2_c3(Cells, Map) ->
     Items = lists:map(fun item/1, Cells),
     NewItems = transformation(Items),
     NewCells = lists:zipwith(fun newcell/2, NewItems, Cells),
-    lists:foldl(fun sokoban_matrix:, Map, NewCells).
+    ChrCells = lists:map(fun chrcell/1, NewCells),
+    lists:foldl(fun sokoban_matrix:set/2, Map, ChrCells).
 
 transformation([Item1, Item2, Item3]) ->
     TransformC2C3 = speculate(Item2, Item3),
@@ -70,13 +82,8 @@ speculate({box,_}, {box,_}) -> [].
 % Base: empty | hole
 % wall
 
-position({_,X,Y}) ->
-    {X,Y}.
-
 position(Direction, {_C,X,Y}) when is_atom(Direction) ->
-    position(Direction, {X,Y});
-position(up, {X,Y}) ->
-    {X,Y-1}.
+    position(Direction, {X,Y}).
 
 newcell(NewItem, {_,X,Y}) ->
     {NewItem,X,Y}.
@@ -90,7 +97,7 @@ cell(XY={_,_}, Map) ->
     cell(MaybeCxy).
 
 cell({C,X,Y}) ->
-    {chr2cell(C), X, Y};
+    {chr2item(C), X, Y};
 cell(none) ->
     none.
 
