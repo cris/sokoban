@@ -61,3 +61,9 @@ find_ij_via_value_test() ->
     ?assertMatch({$o,4,5}, ?M:find_ij(F, Map)),
     F2 = fun(V,_,_) -> V =:= $! end,
     ?assertMatch(none, ?M:find_ij(F2, Map)).
+
+set_test() ->
+    Map = fixture(map),
+    Map2 = ?M:set({$+,5,3}, Map),
+    {Line3, _} = ?M:find_i(fun(_,I) -> I =:= 3 end, Map2),
+    ?assertMatch("#   +  #", Line3).

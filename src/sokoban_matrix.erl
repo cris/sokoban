@@ -1,9 +1,10 @@
 -module(sokoban_matrix).
 -compile(export_all).
 
-set(Char, {X,Y}, Map) when is_integer(Char) ->
-    Row = lists:nth(Y, Map),
-    lists:nth(X, Row).
+set({C,X,Y}, Map) when is_integer(C) ->
+    F = fun(_,I,J) when I =:= X, J =:= Y -> C;
+           (V,_,_) -> V end,
+    map_ij(F, Map).
 
 find_object({X,Y}, Map) ->
     F = fun(_,I,J) -> I =:= X andalso J =:= Y end,
