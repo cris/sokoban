@@ -3,10 +3,10 @@
 
 %% coords: starts from 1x1
 
-player(up, Map) ->
+player(Direction, Map) ->
     Cell1 = cell(player, Map),
-    Cell2 = cell(up, Cell1, Map),
-    Cell3 = cell(up, Cell2, Map),
+    Cell2 = cell(Direction, Cell1, Map),
+    Cell3 = cell(Direction, Cell2, Map),
     _Map2 = transform_c1_c2_c3([Cell1, Cell2, Cell3], Map).
 
 %% private part
@@ -82,7 +82,13 @@ speculate({box,B2}, B3) when is_atom(B3) -> [{player,B2}, {box,B3}].
 position(Direction, {_C,X,Y}) when is_atom(Direction) ->
     position(Direction, {X,Y});
 position(up, {X,Y}) ->
-    {X, Y-1}.
+    {X, Y-1};
+position(down, {X,Y}) ->
+    {X, Y+1};
+position(left, {X,Y}) ->
+    {X-1, Y};
+position(right, {X,Y}) ->
+    {X+1, Y}.
 
 newcell(NewItem, {_,X,Y}) ->
     {NewItem,X,Y}.
@@ -105,4 +111,6 @@ cell(none) ->
     none.
 
 item({Item,_,_}) ->
-    Item.
+    Item;
+item(none) ->
+    none.

@@ -1,8 +1,10 @@
 -module(sokoban_game).
 -compile(export_all).
 
-new(Name) ->
-  {state, map(Name)}.
+new(Name) when is_atom(Name) ->
+    {state, map(Name)};
+new(Map) when is_list(Map) ->
+    {state, Map}.
 
 map(simple) ->
   [
@@ -13,6 +15,7 @@ map(simple) ->
     "#####"    % o, @ -> box, box on the hole
   ].
 
-action(up, {state, Map}) ->
-  Map2 = sokoban_map:player(up, Map),
-  {state, Map2}.
+action(Way, {state, Map})
+        when Way =:= up; Way =:= down; Way =:= left; Way =:= right ->
+    Map2 = sokoban_map:player(Way, Map),
+    {state, Map2}.
